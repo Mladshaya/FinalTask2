@@ -17,25 +17,39 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class RickAndMortySteps {
 
+
+    private static final RequestSpecBuilder builder = new RequestSpecBuilder();
     private static Response response;
     private static String speciesMorty;
     private static String locationMorty;
-    private static String idLastEpisode;
-    private static String idLastCharacter;
+    private static String lastEpisode;
     private static String speciesLastCharacter;
     private static String locationLastCharacter;
 
-    @Given("^Отправить ([^\"]*) запрос на ([^\"]*) о персонаже ([^\"]*) и получить статус (\\d+)$")
-    public static void sendRequestAboutCharacter(String requestMethod, String endpoint, String name, int expectedStatus) {
 
-        RequestSpecBuilder builder = new RequestSpecBuilder();
+    @Given("^Установить базовый url и header$")
+    public static void setBaseUrl() {
         builder.setBaseUri(Configuration.getConfigurationValue("rickMortyUrl"));
         builder.setContentType("Content-type");
         builder.setAccept("application/json");
+    }
+
+    @Given("^Передать параметры запроса для персонажа ([^\"]*)$")
+    public static void getInfoCharacterByName(String name) {
         builder.addQueryParam("name", name);
+    }
+
+    @Given("^Установить эндпоинт ([^\"]*)$")
+    public static void setEndpoint(String endpoint) {
         builder.setBasePath(endpoint);
+    }
+
+
+    @And("^Отправить ([^\"]*) запрос$")
+    public static void sendRequestByMethod(String requestMethod) {
 
         requestSpecification = builder.log(LogDetail.METHOD).log(LogDetail.PARAMS).build();
+
         String method = requestMethod.toLowerCase();
         if (method.equals("get")) {
             response = given()
@@ -44,62 +58,53 @@ public class RickAndMortySteps {
                     .then()
                     .log().all()
                     .extract().response();
-
-            speciesMorty = response.body().jsonPath().get("results[0].species").toString();
-            locationMorty = response.body().jsonPath().get("results[0].location.name").toString();
-            int actualStatus = response.getStatusCode();
-            assertEquals(expectedStatus, actualStatus);
         }
     }
 
-    @Then("Получить информацию о последнем эпизоде")
-    public static void getLastEpisode() {
-        List<String> episodes = response.body().jsonPath().getList("results[0].episode");
-        String urlLastEpisode = episodes.get(episodes.size() - 1);
-        String[] str = urlLastEpisode.split("/");
-        idLastEpisode = str[str.length - 1];
-        System.out.println(idLastEpisode);
+    @Then("^Проверить статус код (\\d+)$")
+    public static void checkByStatus(int expectedStatus) {
+        int actualStatus = response.getStatusCode();
+        assertEquals(expectedStatus, actualStatus);
     }
 
-    @Then("Получить последнего персонажа последнего эпизода")
-    public static void getLastCharacterByEpisode() {
-        //List<String> characters = given()
-        Response response1 = given()
-                .baseUri(Configuration.getConfigurationValue("rickMortyUrl"))
-                .contentType("Content-type").accept("application/json")
+    @And("^Получить информацию о персонаже$")
+    public static void getInfo() {
+        speciesMorty = response.body().jsonPath().get("results[0].species").toString();
+        locationMorty = response.body().jsonPath().get("results[0].location.name").toString();
+    }
+
+    @Then("^Получить информацию о последнем эпизоде$")
+    public void getEpisode() {
+        List<Object> episodes = response.body().jsonPath().getList("results[0].episode");
+        lastEpisode = episodes.get(episodes.size() - 1).toString();
+    }
+
+    @And("^Получить информацию о последнем персонаже эпизода$")
+    public void lastCharacterInfo() {
+
+        List<String> characters = given()
+                .expect().log().body()
                 .when()
-                .get("episode/" + idLastEpisode)
+                .get(lastEpisode)
+                .then().statusCode(200)
+                .extract()
+                .jsonPath().getList("characters");
+
+        String lastCharacter = characters.get(characters.size() - 1);
+
+        response = given()
+                .when()
+                .get(lastCharacter)
                 .then()
-                .statusCode(200)
                 .log().all()
                 .extract().response();
 
-        List<String> allLastEpisodeCharacters = response1.body().jsonPath().getList("characters");
-        String lastCharacter = allLastEpisodeCharacters.get(allLastEpisodeCharacters.size() - 1);
-        String[] str = lastCharacter.split("/");
-        idLastCharacter = str[str.length - 1];
-        System.out.println(idLastCharacter);
+        speciesLastCharacter = response.body().jsonPath().getJsonObject("species").toString();
+        locationLastCharacter = response.body().jsonPath().getJsonObject("location.name").toString();
     }
 
-    @And("Получить информацию о последнем персонаже последнего эпизода")
-    public static void getInfoLastCharacterById() {
-
-        Response response2 = given()
-                .baseUri(Configuration.getConfigurationValue("rickMortyUrl"))
-                .contentType("Content-type").accept("application/json")
-                .when()
-                .get("character/" + idLastCharacter)
-                .then()
-                .statusCode(200)
-                .log().all()
-                .extract().response();
-
-        speciesLastCharacter = response2.body().jsonPath().getJsonObject("species").toString();
-        locationLastCharacter = response2.body().jsonPath().getJsonObject("location.name").toString();
-    }
-
-    @Then("Сравнить расу и местонахождение персонажей")
-    public static void compareCharacters() {
+    @Then("^Сравнить расу и местонахождение персонажей$")
+    public void compareCharacters() {
         assertEquals(speciesMorty, speciesLastCharacter);
         assertNotEquals(locationMorty, locationLastCharacter);
     }

@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static pageObject.pageElements.ProjectPageElements.*;
 
 public class ProjectPageSteps {
-    @Then("Открываем проект {string}")
+    @Then("^Открыть проект ([^\"]*)$")
     public static void openProject(String projectName) {
         buttonProject.shouldBe(Condition.enabled).click();
         buttonAllProject.shouldBe(Condition.visible).click();
@@ -17,7 +17,7 @@ public class ProjectPageSteps {
         linkProject.shouldHave(Condition.exactText(projectName)).click();
     }
 
-    @Then("Проверяем количество задач в проекте")
+    @Then("^Проверить количество задач в проекте$")
     public static void findTasksAmount() {
         tasksList.shouldBe(Condition.enabled).click();
         String text = tasksAmount.getText();
@@ -25,7 +25,7 @@ public class ProjectPageSteps {
         assertNotNull(amount);
     }
 
-    @Then("Находим и открываем задачу {string}")
+    @Then("^Найти и открыть задачу ([^\"]*)$")
     public static void searchTask(String task) {
         taskFilter.shouldBe(Condition.enabled).click();
         buttonAllTasks.click();
@@ -33,13 +33,13 @@ public class ProjectPageSteps {
         searchField.pressEnter();
     }
 
-    @Then("Проверяем затронутую версию")
+    @Then("^Проверить затронутую версию$")
     public static void checkVersion() {
         String version = taskVersion.getText();
         assertEquals("Version 2.0", version);
     }
 
-    @Then("Проверяем статус задачи")
+    @Then("^Проверить статус задачи$")
     public static void checkStatus() {
         taskStatus.shouldBe(visible);
         String status = taskStatus.getText();

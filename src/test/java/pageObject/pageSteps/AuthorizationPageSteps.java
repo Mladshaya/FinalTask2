@@ -10,12 +10,12 @@ import static utils.Configuration.getConfigurationValue;
 
 public class AuthorizationPageSteps {
 
-    @Given("Открываем главную страницу jira")
+    @Given("^Открыть главную страницу jira$")
     public static void openUrl() {
         open(getConfigurationValue("jiraUrl"));
     }
 
-    @And("Вводим логин и пароль")
+    @And("^Ввести логин и пароль$")
     public static void authorization() {
         loginLane.shouldBe(visible).sendKeys(getConfigurationValue("login"));
         passwordLane.sendKeys(getConfigurationValue("password"));

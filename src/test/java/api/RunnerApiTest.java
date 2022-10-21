@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
         features = "src/test/resources/features",
         glue = "api.apiSteps",
-        tags = "@rickAndMorty or @reqRes",
+        tags = "@api",
         plugin = {"pretty", "io.qameta.allure.cucumber6jvm.AllureCucumber6Jvm", "json:target/cucumber.json", "html:test-output"}
 )
 public class RunnerApiTest {

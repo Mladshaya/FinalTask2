@@ -9,7 +9,7 @@ import static com.codeborne.selenide.Condition.visible;
 import static pageObject.pageElements.CreateTaskElements.*;
 
 public class CreateTaskSteps {
-    @Then("Создаем баг")
+    @Then("^Создать баг$")
     public static void createTask() {
         buttonCreate.click();
         issueTypeField.click();
@@ -28,7 +28,7 @@ public class CreateTaskSteps {
     }
 
 
-    @Then("Проводим баг по статусам")
+    @Then("^Провести баг по статусам$")
     public static void changeStatus() {
         buttonInwork.click();
         statusFieldInwork.shouldHave(Condition.text("В работе"));

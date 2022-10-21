@@ -18,18 +18,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ReqResSteps {
     private JSONObject body;
 
-    @When("^Считываем данные из json-файла$")
+    @When("^Считать данные из json-файла$")
     public void readFile() throws IOException {
         body = new JSONObject(new String(Files.readAllBytes(Paths.get(Configuration.getConfigurationValue("pathToJsonDirectory")))));
     }
 
-    @Then("^Изменяем данные в json-объекте$")
+    @Then("^Изменить данные в json-объекте$")
     public void changeObject() {
         body.put("name", "Tomato");
         body.put("job", "Eat maket");
     }
 
-    @And("^Отправляем запрос и проверяем корректность данных$")
+    @And("^Отправить запрос и проверяем корректность данных$")
     public void sendRequest() {
         RequestSpecification request = given();
         request
