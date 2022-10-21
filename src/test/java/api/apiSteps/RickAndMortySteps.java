@@ -59,6 +59,7 @@ public class RickAndMortySteps {
                     .log().all()
                     .extract().response();
         }
+        builder.removeQueryParam("name");
     }
 
     @Then("^Проверить статус код (\\d+)$")
